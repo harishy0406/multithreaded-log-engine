@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  log-engine-backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./sample-data:/app/sample-data
+      - ./engine_history.db:/app/engine_history.db
+    restart: unless-stopped
+
+  log-engine-frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - log-engine-backend
+    restart: unless-stopped
