@@ -1,0 +1,15 @@
+[2026-11-02 09:00:00.000] [INFO] [Core] Initializing MultiThreaded Log Engine v1.0
+[2026-11-02 09:00:00.010] [INFO] [ThreadPool] Spawned 8 worker threads successfully.
+[2026-11-02 09:00:00.020] [INFO] [Queue] Bounded task queue initialized with capacity 20000.
+[2026-11-02 09:00:00.050] [INFO] [Server] HTTP API server listening on 0.0.0.0:8080
+[2026-11-02 09:00:01.100] [INFO] [Ingestor] Started reading log stream from large.log
+[2026-11-02 09:00:01.110] [DEBUG] [Worker-1] Parsed batch 1 - 500 records
+[2026-11-02 09:00:01.115] [DEBUG] [Worker-2] Parsed batch 2 - 500 records
+[2026-11-02 09:00:01.120] [WARNING] [Database] Slow query detected: 1200ms elapsed
+[2026-11-02 09:00:01.130] [ERROR] [Auth] Failed authentication attempt for user 'admin' from IP 10.0.0.15
+[2026-11-02 09:00:01.140] [INFO] [API] GET /api/benchmarks/results - Status 200 OK
+[2026-11-02 09:00:01.150] [ERROR] [Payment] Connection reset by peer while contacting bank gateway
+[2026-11-02 09:00:01.160] [WARNING] [Cache] Redis memory fragmentation ratio exceeds 1.5
+[2026-11-02 09:00:01.170] [INFO] [System] Auto-scaling trigger checked: CPU utilization 42%
+[2026-11-02 09:00:01.180] [ERROR] [Storage] Failed to flush buffer to disk: I/O error
+[2026-11-02 09:00:01.190] [INFO] [Analytics] Aggregated hourly metrics successfully

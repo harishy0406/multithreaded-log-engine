@@ -1,0 +1,17 @@
+FROM gcc:13 AS builder
+
+WORKDIR /app
+RUN apt-get update && apt-get install -y cmake libsqlite3-dev
+
+COPY . /app
+RUN mkdir build && cd build && cmake .. && make -j$(nproc)
+
+FROM debian:bookworm-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y libsqlite3-0 && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/build/log_engine_app /app/log_engine_app
+COPY --from=builder /app/sample-data /app/sample-data
+
+EXPOSE 8080
+ENTRYPOINT ["/app/log_engine_app", "server", "8080"]

@@ -1,0 +1,10 @@
+[2026-11-02 10:00:01.100] [INFO] [System] Application initialized successfully.
+[2026-11-02 10:00:02.210] [INFO] [AuthService] User admin logged in from 192.168.1.50.
+[2026-11-02 10:00:03.320] [WARNING] [Database] Connection pool utilization reached 85%.
+[2026-11-02 10:00:04.430] [ERROR] [PaymentService] Transaction failed: timeout connecting to gateway.
+[2026-11-02 10:00:05.540] [INFO] [PaymentService] Retrying transaction...
+[2026-11-02 10:00:06.650] [INFO] [PaymentService] Transaction succeeded on retry.
+[2026-11-02 10:00:07.760] [ERROR] [AuthService] Invalid token presented for user session #4921.
+[2026-11-02 10:00:08.870] [DEBUG] [Cache] Cache eviction triggered for key user_session_4921.
+[2026-11-02 10:00:09.980] [WARNING] [System] High memory usage detected: 78%.
+[2026-11-02 10:00:10.100] [INFO] [System] Health check passed.

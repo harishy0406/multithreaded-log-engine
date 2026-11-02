@@ -1,0 +1,19 @@
+[2026-11-02 08:00:00.000] [INFO] [Boot] System booting up...
+[2026-11-02 08:00:00.100] [INFO] [Config] Loading configuration from /etc/engine/config.json
+[2026-11-02 08:00:00.250] [INFO] [Network] Starting TCP listener on port 8080
+[2026-11-02 08:00:01.000] [INFO] [Database] Established connection pool with 16 connections.
+[2026-11-02 08:00:02.100] [INFO] [WebServer] Server ready to accept requests.
+[2026-11-02 08:00:05.120] [INFO] [API] GET /api/health - Status 200 OK
+[2026-11-02 08:00:06.330] [WARNING] [Auth] Failed login attempt for user 'root' from 203.0.113.45
+[2026-11-02 08:00:07.450] [ERROR] [Database] Query timeout executing 'SELECT * FROM transactions WHERE date > ?'
+[2026-11-02 08:00:08.560] [INFO] [API] POST /api/logs/upload - Status 201 Created
+[2026-11-02 08:00:09.670] [DEBUG] [Worker] Processing task queue batch #12
+[2026-11-02 08:00:10.780] [WARNING] [Memory] Low heap headroom: 512MB remaining
+[2026-11-02 08:00:11.890] [ERROR] [Payment] Gateway timeout error calling Stripe API
+[2026-11-02 08:00:12.900] [INFO] [Payment] Refund transaction #9821 processed successfully
+[2026-11-02 08:00:13.110] [INFO] [API] GET /api/dashboard/summary - Status 200 OK
+[2026-11-02 08:00:14.220] [ERROR] [Auth] Invalid API key signature provided
+[2026-11-02 08:00:15.330] [INFO] [System] Routine maintenance task completed.
+[2026-11-02 08:00:16.440] [WARNING] [Storage] Disk write latency spiked to 45ms
+[2026-11-02 08:00:17.550] [ERROR] [Database] Deadlock detected on table 'users', transaction aborted
+[2026-11-02 08:00:18.660] [INFO] [WebServer] Client connection closed gracefully.
