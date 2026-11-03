@@ -27,7 +27,7 @@ struct ProcessingResult {
 
 class LogProcessorEngine {
 public:
-    LogProcessorEngine();
+    explicit LogProcessorEngine(size_t max_queue_size = 20000);
     ~LogProcessorEngine() = default;
 
     ProcessingResult process_file(const std::string& file_path,
@@ -38,6 +38,7 @@ public:
 
 private:
     std::atomic<bool> cancel_flag_{false};
+    size_t max_queue_size_;
 };
 
 #endif // LOG_PROCESSOR_ENGINE_HPP

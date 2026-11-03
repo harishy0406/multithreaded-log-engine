@@ -1,7 +1,7 @@
 #include "engine/threading/ThreadPool.hpp"
 #include <iostream>
 
-ThreadPool::ThreadPool(size_t num_threads) {
+ThreadPool::ThreadPool(size_t num_threads, size_t max_queue_size) : max_queue_size_(max_queue_size) {
     for (size_t i = 0; i < num_threads; ++i) {
         workers_.emplace_back([this, i]() {
             while (true) {
@@ -9,10 +9,10 @@ ThreadPool::ThreadPool(size_t num_threads) {
                 {
                     std::unique_lock<std::mutex> lock(this->mutex_);
                     this->cv_.wait(lock, [this]() {
-                        return this->stop_ || !this->tasks_.empty();
+                        return this->shutdown_ || !this->tasks_.empty();
                     });
 
-                    if (this->stop_ && this->tasks_.empty()) {
+                    if (this->shutdown_ && this->tasks_.empty()) {
                         return;
                     }
 
@@ -27,6 +27,10 @@ ThreadPool::ThreadPool(size_t num_threads) {
                 } catch (...) {
                     std::cerr << "ThreadPool worker " << i << " caught unknown exception." << std::endl;
                 }
+
+                if (this->max_queue_size_ > 0) {
+                    this->not_full_.notify_one();
+                }
             }
         });
     }
@@ -39,10 +43,11 @@ ThreadPool::~ThreadPool() {
 void ThreadPool::shutdown() {
     {
         std::unique_lock<std::mutex> lock(mutex_);
-        if (stop_) return;
-        stop_ = true;
+        if (shutdown_) return;
+        shutdown_ = true;
     }
     cv_.notify_all();
+    not_full_.notify_all();
     for (std::thread& worker : workers_) {
         if (worker.joinable()) {
             worker.join();
