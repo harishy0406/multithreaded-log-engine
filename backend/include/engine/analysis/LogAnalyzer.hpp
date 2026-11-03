@@ -8,6 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <atomic>
+#include <chrono>
 
 struct AnalysisSummary {
     uint64_t total_records = 0;
@@ -23,6 +24,14 @@ struct AnalysisSummary {
     std::map<std::string, uint64_t> timeline_distribution;
 };
 
+struct AnomalyReport {
+    std::string severity; // "CRITICAL", "WARNING", "INFO"
+    std::string source;
+    std::string message;
+    std::string timestamp;
+    uint64_t occurrence_count = 0;
+};
+
 class LogAnalyzer {
 public:
     LogAnalyzer() = default;
@@ -31,6 +40,7 @@ public:
     void reset();
     void process_record(const LogRecord& record);
     AnalysisSummary get_summary() const;
+    std::vector<AnomalyReport> detect_anomalies(double error_threshold = 5.0) const;
 
 private:
     mutable std::mutex mutex_;

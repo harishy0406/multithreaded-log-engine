@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, ShieldAlert, Search, Download, Check } from 'lucide-react';
 
-export const LogAnalyticsPage: React.FC = () => {
+const LogAnalyticsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [exported, setExported] = useState(false);
 
@@ -9,6 +9,8 @@ export const LogAnalyticsPage: React.FC = () => {
     { id: 1, severity: 'CRITICAL', source: 'Database', message: 'Connection pool timeout spike detected (145 occurrences in 60s)', timestamp: '10:14:22' },
     { id: 2, severity: 'WARNING', source: 'AuthService', message: 'Repeated unauthorized login attempts from subnet 203.0.113.0/24', timestamp: '10:12:05' },
     { id: 3, severity: 'WARNING', source: 'System', message: 'Memory utilization threshold exceeded 80%', timestamp: '10:05:40' },
+    { id: 4, severity: 'CRITICAL', source: 'Payment', message: 'Gateway timeout error (78 occurrences in 30s)', timestamp: '10:03:15' },
+    { id: 5, severity: 'INFO', source: 'Cache', message: 'Cache eviction triggered', timestamp: '10:02:30' },
   ];
 
   const filteredAnomalies = anomalies.filter(a =>
@@ -17,7 +19,7 @@ export const LogAnalyticsPage: React.FC = () => {
   );
 
   const handleExportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(anomalies, null, 2));
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredAnomalies, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "log_engine_analytics_report.json");
@@ -70,29 +72,59 @@ export const LogAnalyticsPage: React.FC = () => {
           {filteredAnomalies.map((anomaly) => (
             <div key={anomaly.id} className="p-5 flex items-center justify-between hover:bg-slate-800/40 transition-colors">
               <div className="flex items-start space-x-4">
-                <div className={`p-2.5 rounded-xl ${anomaly.severity === 'CRITICAL' ? 'bg-rose-500/10 text-rose-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                <div className={`p-2.5 rounded-xl ${anomaly.severity === 'CRITICAL' ? 'bg-rose-500/10 text-rose-400' : anomaly.severity === 'WARNING' ? 'bg-amber-500/10 text-amber-400' : 'bg-indigo-500/10 text-indigo-400'}`}>
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className={`text-xs px-2 py-0.5 rounded font-bold ${
-                      anomaly.severity === 'CRITICAL' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'
+                      anomaly.severity === 'CRITICAL' ? 'bg-rose-500/20 text-rose-300' : anomaly.severity === 'WARNING' ? 'bg-amber-500/20 text-amber-300' : 'bg-indigo-500/20 text-indigo-300'
                     }`}>
                       {anomaly.severity}
                     </span>
                     <span className="text-xs font-mono text-slate-400">{anomaly.source}</span>
                     <span className="text-xs text-slate-500">• {anomaly.timestamp}</span>
+                    <span className="text-xs text-slate-500">• {anomaly.occurrence_count} occurrences</span>
                   </div>
                   <p className="text-sm font-medium text-slate-200 mt-1">{anomaly.message}</p>
                 </div>
               </div>
-              <button className="bg-slate-900 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-medium transition-colors border border-slate-700">
+              <button className="bg-slate-900 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-medium transition-colors border border-slate-800">
                 Inspect Logs
               </button>
             </div>
           ))}
         </div>
       </div>
+
+      <div className="bg-charcoal-800 border border-slate-800 p-6 rounded-2xl">
+        <h3 className="text-base font-bold text-slate-100 flex items-center">
+          <span className="w-5 h-5 mr-2 text-indigo-400" />
+          Analytics Statistics
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+          <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <span className="text-xs text-slate-400 font-medium">Total Anomalies</span>
+            <div className="text-2xl font-bold font-mono text-slate-100 mt-1">{filteredAnomalies.length}</div>
+          </div>
+          <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <span className="text-xs text-slate-400 font-medium">Critical Alerts</span>
+            <div className="text-2xl font-bold font-mono text-rose-400 mt-1">{filteredAnomalies.filter(a => a.severity === 'CRITICAL').length}</div>
+          </div>
+          <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <span className="text-xs text-slate-400 font-medium">Warnings Detected</span>
+            <div className="text-2xl font-bold font-mono text-amber-400 mt-1">{filteredAnomalies.filter(a => a.severity === 'WARNING').length}</div>
+          </div>
+          <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <span className="text-xs text-slate-400 font-medium">Avg Occurrences</span>
+            <div className="text-2xl font-bold font-mono text-indigo-400 mt-1">
+              {(filteredAnomalies.reduce((sum, a) => sum + a.occurrence_count, 0) / filteredAnomalies.length).toFixed(0)}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
+
+export default LogAnalyticsPage;

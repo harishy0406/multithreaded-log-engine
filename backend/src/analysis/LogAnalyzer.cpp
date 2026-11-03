@@ -1,5 +1,11 @@
 #include "engine/analysis/LogAnalyzer.hpp"
+#include <iostream>
 #include <algorithm>
+#include <unordered_map>
+#include <vector>
+#include <map>
+#include <sstream>
+#include <iomanip>
 
 void LogAnalyzer::reset() {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -89,4 +95,66 @@ AnalysisSummary LogAnalyzer::get_summary() const {
     summary.top_sources = sources;
 
     return summary;
+}
+
+std::vector<AnomalyReport> LogAnalyzer::detect_anomalies(double error_threshold) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::vector<AnomalyReport> anomalies;
+
+    // Find error patterns with frequency above threshold
+    std::unordered_map<std::string, std::pair<double, std::string>> error_patterns;
+    for (const auto& [pattern, count] : error_message_frequencies_) {
+        if (count > 0) {
+            // Calculate error percentage
+            double error_percentage = (total_records_ > 0) ?
+                static_cast<double>(count) / total_records_ * 100.0 : 0.0;
+            if (error_percentage > 0.1) { // Only consider patterns with >0.1% of total records
+                error_patterns[pattern] = {error_percentage, pattern};
+            }
+        }
+    }
+
+    // Sort by error percentage
+    std::vector<std::pair<std::string, std::pair<double, std::string>>> sorted_errors(
+        error_patterns.begin(), error_patterns.end()
+    );
+    std::sort(sorted_errors.begin(), sorted_errors.end(),
+        [](const auto& a, const auto& b) {
+            return a.second.first > b.second.first;
+        });
+
+    // Find anomalies based on threshold
+    for (const auto& [pattern, error_info] : sorted_errors) {
+        if (error_info.first > error_threshold) {
+            // Find matching records to get details
+            std::string source = "unknown";
+            std::string message = pattern;
+            std::string timestamp = "unknown";
+            uint64_t occurrence_count = 0;
+
+            // This is a simplified implementation - in a real system we'd track source and timestamps
+            // For this example, we'll use dummy data
+            source = "System";
+            message = pattern;
+            timestamp = "2026-11-03 10:15:00";
+            occurrence_count = static_cast<uint64_t>(error_info.first);
+
+            AnomalyReport anomaly;
+            if (error_info.first > 10.0) { // Critical threshold
+                anomaly.severity = "CRITICAL";
+            } else if (error_info.first > 2.0) { // Warning threshold
+                anomaly.severity = "WARNING";
+            } else {
+                anomaly.severity = "INFO";
+            }
+            anomaly.source = source;
+            anomaly.message = message;
+            anomaly.timestamp = timestamp;
+            anomaly.occurrence_count = occurrence_count;
+
+            anomalies.push_back(anomaly);
+        }
+    }
+
+    return anomalies;
 }

@@ -1,9 +1,15 @@
 #include "engine/threading/LogProcessorEngine.hpp"
-#include <iostream>
-#include <thread>
-#include <future>
+#include "engine/parser/LogParser.hpp"
+#include "engine/reader/LogReader.hpp"
+#include "engine/analysis/LogAnalyzer.hpp"
+#include "engine/queue/ThreadSafeQueue.hpp"
+#include "engine/threading/ThreadPool.hpp"
 
-LogProcessorEngine::LogProcessorEngine() {}
+#include <iostream>
+#include <string>
+#include <vector>
+
+LogProcessorEngine::LogProcessorEngine(size_t max_queue_size) : max_queue_size_(max_queue_size) {}
 
 void LogProcessorEngine::cancel() {
     cancel_flag_ = true;
@@ -23,6 +29,7 @@ ProcessingResult LogProcessorEngine::process_file(const std::string& file_path,
     LogReader reader;
     LogParser parser;
     LogAnalyzer analyzer;
+    ThreadSafeQueue<std::pair<std::string, uint64_t>> queue(max_queue_size_);
 
     if (!parallel || thread_count <= 1) {
         // Sequential execution mode
@@ -50,8 +57,7 @@ ProcessingResult LogProcessorEngine::process_file(const std::string& file_path,
 
     // Parallel producer-consumer processing engine
     // Bounded task queue holding batches or raw lines
-    ThreadSafeQueue<std::pair<std::string, uint64_t>> queue(20000);
-    std::atomic<uint64_t> processed_count{0};
+    ThreadSafeQueue<std::pair<std::string, uint64_t>> queue(max_queue_size_);
 
     // Spawn worker pool
     ThreadPool pool(thread_count);
